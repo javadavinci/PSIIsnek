@@ -50,12 +50,12 @@ def start():
 @bottle.post('/move')
 def move():
     data = bottle.request.json
-    snakes = data['board']['snakes']
+    snakes = data['snakes']
     food = data['board']['food']
     height = data['board']['height']
     width = data['board']['width']
     grid = [[0 for x in range(width)] for y in range(height)]
-    snake = data['board']['snakes']
+    snake = {data['snakes']['body']}
 
     """
     TODO: Using the data from the endpoint request object, your
@@ -71,32 +71,29 @@ def move():
         return move_response('left')
     else:    
         for s in snakes:
-        you = False
-        if s['id'] == data['you']:
-            snake = s
-            you = True
-        for idx, val in enumerate(s['coords']):
-            x, y = val
-            if grid[x][y] != 0:
-                continue # Stops snake bodies from overwriting heads at the beginning
-            # If this is the forst coordinate, it's the head
-            if idx == 0:
-                grid[x][y] = 11 if you else 21
-            else:
-                grid[x][y] = 10 if you else 20
-    for coords in food:
-        x, y = coords
-        grid[x][y] = 2
-        
-    head = snake['coords'][0]
-        
-    # Simple macros for each direction
-    c_north = [snake['coords'][0][0], snake['coords'][0][1] - 1]
-    c_south = [snake['coords'][0][0], snake['coords'][0][1] + 1]
-    c_east = [snake['coords'][0][0] + 1, snake['coords'][0][1]]
-    c_west = [snake['coords'][0][0] - 1, snake['coords'][0][1]]
+            you = False
+            for idx, val in enumerate(s['coords']):
+                x, y = val
+                if grid[x][y] != 0:
+                    continue # Stops snake bodies from overwriting heads at the beginning
+                # If this is the forst coordinate, it's the head
+                if idx == 0:
+                    grid[x][y] = 11 if you else 21
+                else:
+                    grid[x][y] = 10 if you else 20
+        for coords in food:
+            x, y = coords
+            grid[x][y] = 2
+            
+        head = snake['coords'][0]
+            
+        # Simple macros for each direction
+        c_north = [snake['coords'][0][0], snake['coords'][0][1] - 1]
+        c_south = [snake['coords'][0][0], snake['coords'][0][1] + 1]
+        c_east = [snake['coords'][0][0] + 1, snake['coords'][0][1]]
+        c_west = [snake['coords'][0][0] - 1, snake['coords'][0][1]]
 
-        #Check if a given coordiante is safe
+            #Check if a given coordiante is safe
         def coords_safe(coords):
             x, y = coords
             if x < 0 or x > width-1: return False # Check if coordinate is inside horizontal bounds
