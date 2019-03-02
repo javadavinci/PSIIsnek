@@ -72,9 +72,10 @@ def move():
     if health < 70:
         return move_response('left')
     else:
-        current = 0
         for s in snakes:
             you = False
+            if s['id'] == data['you']['id']:
+                you = True
             for idx, val in enumerate(s['body']):
                 x = val['x']
                 y = val['y']
@@ -82,13 +83,23 @@ def move():
                     continue  # Stops snake bodies from overwriting heads at the beginning
                 # If this is the first coordinate, it's the head
                 if idx == 0:
-                    grid[x][y] = 11 if you else 21
+                    if you is True:
+                        grid[x][y] = 11
+                    else:
+                        grid[x][y] = 21
                 else:
-                    grid[x][y] = 10 if you else 20
+                    if you is True:
+                        grid[x][y] = 10
+                    else:
+                        grid[x][y] = 20
         for coords in food:
             x = coords['x']
             y = coords['y']
             grid[x][y] = 2
+
+        print(data['turn'])
+        for each in grid:
+            print(each)
             
         head = data['you']['body'][0]
             
