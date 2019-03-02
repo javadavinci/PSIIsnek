@@ -42,7 +42,7 @@ def start():
     """
     print(json.dumps(data))
 
-    color = "#00FF00"
+    color = "#49301f"
 
     return start_response(color)
 
@@ -54,6 +54,7 @@ def move():
     food = data['board']['food']
     height = data['board']['height']
     width = data['board']['width']
+    health = data["you"]['health']
     grid = [[0 for x in range(width)] for y in range(height)]
     snake = []
     for i in snakes:
@@ -68,95 +69,98 @@ def move():
 
     directions = ['up', 'down', 'left', 'right']
     #direction = random.choice(directions)
-    health = data["you"]['health']
-    if health < 70:
-        return move_response('left')
-    else:
-        for s in snakes:
-            you = False
-            if s['id'] == data['you']['id']:
-                you = True
-            for idx, val in enumerate(s['body']):
-                x = val['x']
-                y = val['y']
-                if grid[x][y] != 0:
-                    continue  # Stops snake bodies from overwriting heads at the beginning
-                # If this is the first coordinate, it's the head
-                if idx == 0:
-                    if you is True:
-                        grid[x][y] = 11
-                    else:
-                        grid[x][y] = 21
+
+    for s in snakes:
+        you = False
+        if s['id'] == data['you']['id']:
+            you = True
+        for idx, val in enumerate(s['body']):
+            x = val['x']
+            y = val['y']
+            if grid[x][y] != 0:
+                continue  # Stops snake bodies from overwriting heads at the beginning
+            # If this is the first coordinate, it's the head
+            if idx == 0:
+                if you is True:
+                    grid[x][y] = 11
                 else:
-                    if you is True:
-                        grid[x][y] = 10
-                    else:
-                        grid[x][y] = 20
-        for coords in food:
-            x = coords['x']
-            y = coords['y']
-            grid[x][y] = 2
+                    grid[x][y] = 21
+            else:
+                if you is True:
+                    grid[x][y] = 10
+                else:
+                    grid[x][y] = 20
+    for coords in food:
+        x = coords['x']
+        y = coords['y']
+        grid[x][y] = 2
 
-        print(data['turn'])
-        for each in grid:
-            print(each)
-            
-        head = data['you']['body'][0]
-            
-        # Simple macros for each direction
-        c_north = [head['x'], head['y'] - 1]
-        c_south = [head['x'], head['y'] + 1]
-        c_east = [head['x'] + 1, head['y']]
-        c_west = [head['x'] - 1, head['y']]
+    print(data['turn'])
+    for each in grid:
+        print(each)
 
-            #Check if a given coordiante is safe
-        def coords_safe(coords):
-            x, y = coords
-            if x < 0 or x > width-1: return False # Check if coordinate is inside horizontal bounds
-            if y < 0 or y > height-1: return False # Check if coordinate is inside vertical bounds
-            if grid[x][y] not in [0,2]: return False # Check if coordinate matches a snake body
-            return True
-        
-        def find_neighbours(coords):
-            x, y = coords
-            neighbors = []
-            
-            if coords_safe([x-1, y]):
-                neighbors.append((x-1, y))
-            if coords_safe([x, y-1]):
-                neighbors.append((x, y-1))
-            if coords_safe([x+1, y]):
-                neighbors.append((x+1, y))
-            if coords_safe([x, y+1]):
-                neighbors.append((x, y+1))
-            
-            return neighbors
-        
+    head = data['you']['body'][0]
+
+    # Simple macros for each direction
+    c_north = [head['x'], head['y'] - 1]
+    c_south = [head['x'], head['y'] + 1]
+    c_east = [head['x'] + 1, head['y']]
+    c_west = [head['x'] - 1, head['y']]
+
+        #Check if a given coordiante is safe
+    def coords_safe(coords):
+        x, y = coords
+        if x < 0 or x > width-1: return False # Check if coordinate is inside horizontal bounds
+        if y < 0 or y > height-1: return False # Check if coordinate is inside vertical bounds
+        if grid[x][y] not in [0,2]: return False # Check if coordinate matches a snake body
+        return True
+
+    def find_neighbours(coords):
+        x, y = coords
+        neighbors = []
+
+        if coords_safe([x-1, y]):
+            neighbors.append((x-1, y))
+        if coords_safe([x, y-1]):
+            neighbors.append((x, y-1))
+        if coords_safe([x+1, y]):
+            neighbors.append((x+1, y))
+        if coords_safe([x, y+1]):
+            neighbors.append((x, y+1))
+
+        return neighbors
+
+    tail = data['you']['body'][-1]
+
+    if health < 60:
         finder = astar.pathfinder(neighbors=find_neighbours)
         path = finder((head['x'], head['y']), (food[00]['x'], food[00]['y']))[1]
-        
-        if len(path) < 2:
-            if coords_safe(c_north):
-                direction = "up"
-            elif coords_safe(c_south):
-                direction = "down"
-            elif coords_safe(c_east):
-                direction = "right"
-            else:
-                direction = "left"
-        else:
-            next_coord = path[1]
-            if next_coord[1] < head['y']:
-                direction = "up"
-            elif next_coord[1] > head['y']:
-                direction = "down"
-            elif next_coord[0] > head['x']:
-                direction = "right"
-            else:
-                direction = "left"
+    else:
+        finder = astar.pathfinder(neighbors=find_neighbours)
+        path = finder((head['x'], head['y']), (tail['x'], tail['y']))[1]
 
-        print(direction)
-        return move_response(direction)
+    if len(path) < 2:
+        if coords_safe(c_north):
+            direction = "up"
+        elif coords_safe(c_south):
+            direction = "down"
+        elif coords_safe(c_east):
+            direction = "right"
+        else:
+            direction = "left"
+    else:
+        next_coord = path[1]
+        if next_coord[1] < head['y']:
+            direction = "up"
+        elif next_coord[1] > head['y']:
+            direction = "down"
+        elif next_coord[0] > head['x']:
+            direction = "right"
+        else:
+            direction = "left"
+
+    print(direction)
+    return move_response(direction)
 
 @bottle.post('/end')
 def end():
