@@ -147,7 +147,7 @@ def move():
 
     tail = data['you']['body'][-1]
 
-    if health < 55:
+    if health < 63:
         finder = astar.pathfinder(neighbors=find_neighbours)
         path = finder((head['x'], head['y']), (nearestfood['x'], nearestfood['y']))[1]
     else:
