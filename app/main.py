@@ -57,6 +57,7 @@ def move():
     health = data["you"]['health']
     grid = [[0 for x in range(width)] for y in range(height)]
     snake = []
+    nearestfood = {'dist': -1, 'x': 0, 'y': 0}
     for i in snakes:
         snake.append(i['body'])
 
@@ -89,22 +90,31 @@ def move():
                 if you is True:
                     grid[x][y] = 3
                 else:
-                    grid[x][y] = 20
+                    grid[x][y] = 22
             else:
                 if you is True:
                     grid[x][y] = 10
                 else:
                     grid[x][y] = 20
+
+    head = data['you']['body'][0]
+
     for coords in food:
         x = coords['x']
         y = coords['y']
         grid[x][y] = 2
+        hx = abs(head['x'] - x)
+        hy = abs(head['y'] - y)
+        xy = hx + hy
+        if nearestfood['dist'] > xy or nearestfood['dist'] is -1:
+            nearestfood['dist'] = xy
+            nearestfood['x'] = x
+            nearestfood['y'] = y
+            print(nearestfood)
 
     print(data['turn'])
-    for each in grid:
-        print(each)
 
-    head = data['you']['body'][0]
+
 
     # Simple macros for each direction
     c_north = [head['x'], head['y'] - 1]
@@ -137,22 +147,36 @@ def move():
 
     tail = data['you']['body'][-1]
 
-    if health < 60:
+    if health < 55:
         finder = astar.pathfinder(neighbors=find_neighbours)
-        path = finder((head['x'], head['y']), (food[00]['x'], food[00]['y']))[1]
+        path = finder((head['x'], head['y']), (nearestfood['x'], nearestfood['y']))[1]
     else:
         finder = astar.pathfinder(neighbors=find_neighbours)
         path = finder((head['x'], head['y']), (tail['x'], tail['y']))[1]
-        print(path)
+
     if len(path) < 2:
-        if coords_safe(c_north):
-            direction = "up"
-        elif coords_safe(c_south):
-            direction = "down"
-        elif coords_safe(c_east):
-            direction = "right"
+        finder = astar.pathfinder(neighbors=find_neighbours)
+        path = finder((head['x'], head['y']), (tail['x'], tail['y']))[1]
+
+        if len(path) < 2:
+            if coords_safe(c_north):
+                direction = "up"
+            elif coords_safe(c_south):
+                direction = "down"
+            elif coords_safe(c_east):
+                direction = "right"
+            else:
+                direction = "left"
         else:
-            direction = "left"
+            next_coord = path[1]
+            if next_coord[1] < head['y']:
+                direction = "up"
+            elif next_coord[1] > head['y']:
+                direction = "down"
+            elif next_coord[0] > head['x']:
+                direction = "right"
+            else:
+                direction = "left"
     else:
         next_coord = path[1]
         if next_coord[1] < head['y']:
