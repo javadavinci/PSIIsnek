@@ -85,6 +85,11 @@ def move():
                     grid[x][y] = 11
                 else:
                     grid[x][y] = 21
+            elif idx == (len(data['you']['body']) - 1):
+                if you is True:
+                    grid[x][y] = 3
+                else:
+                    grid[x][y] = 20
             else:
                 if you is True:
                     grid[x][y] = 10
@@ -112,7 +117,7 @@ def move():
         x, y = coords
         if x < 0 or x > width-1: return False # Check if coordinate is inside horizontal bounds
         if y < 0 or y > height-1: return False # Check if coordinate is inside vertical bounds
-        if grid[x][y] not in [0,2]: return False # Check if coordinate matches a snake body
+        if grid[x][y] not in [0, 2, 3]: return False # Check if coordinate matches a snake body
         return True
 
     def find_neighbours(coords):
@@ -138,7 +143,7 @@ def move():
     else:
         finder = astar.pathfinder(neighbors=find_neighbours)
         path = finder((head['x'], head['y']), (tail['x'], tail['y']))[1]
-
+        print(path)
     if len(path) < 2:
         if coords_safe(c_north):
             direction = "up"
