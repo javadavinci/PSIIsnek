@@ -86,6 +86,22 @@ def move():
                     grid[x][y] = 11
                 else:
                     grid[x][y] = 21
+                    try:
+                        grid[x + 1][y] = 21
+                    except IndexError:
+                        pass
+                    try:
+                        grid[x][y + 1] = 21
+                    except IndexError:
+                        pass
+                    try:
+                        grid[x - 1][y] = 21
+                    except IndexError:
+                        pass
+                    try:
+                        grid[x][y - 1] = 21
+                    except IndexError:
+                        pass
             elif idx == (len(data['you']['body']) - 1):
                 if you is True:
                     grid[x][y] = 3
@@ -110,7 +126,7 @@ def move():
             nearestfood['dist'] = xy
             nearestfood['x'] = x
             nearestfood['y'] = y
-            print(nearestfood)
+            print("closest food: " + str(nearestfood))
 
     print(data['turn'])
 
