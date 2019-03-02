@@ -58,7 +58,6 @@ def move():
     snake = []
     for i in snakes:
         snake.append(i['body'])
-    print(snake)
 
     """
     TODO: Using the data from the endpoint request object, your
@@ -70,17 +69,18 @@ def move():
     directions = ['up', 'down', 'left', 'right']
     #direction = random.choice(directions)
     health = data["you"]['health']
-    if  health < 70:
+    if health < 70:
         return move_response('left')
-    else:    
+    else:
+        current = 0
         for s in snakes:
             you = False
             for idx, val in enumerate(s['body']):
                 x = val['x']
                 y = val['y']
                 if grid[x][y] != 0:
-                    continue # Stops snake bodies from overwriting heads at the beginning
-                # If this is the forst coordinate, it's the head
+                    continue  # Stops snake bodies from overwriting heads at the beginning
+                # If this is the first coordinate, it's the head
                 if idx == 0:
                     grid[x][y] = 11 if you else 21
                 else:
@@ -90,13 +90,13 @@ def move():
             y = coords['y']
             grid[x][y] = 2
             
-        head = snake['coords'][0]
+        head = data['you']['body'][0]
             
         # Simple macros for each direction
-        c_north = [snake['coords'][0][0], snake['coords'][0][1] - 1]
-        c_south = [snake['coords'][0][0], snake['coords'][0][1] + 1]
-        c_east = [snake['coords'][0][0] + 1, snake['coords'][0][1]]
-        c_west = [snake['coords'][0][0] - 1, snake['coords'][0][1]]
+        c_north = [head['x'], head['y'] - 1]
+        c_south = [head['x'], head['y'] + 1]
+        c_east = [head['x'] + 1, head['y']]
+        c_west = [head['x'] - 1, head['y']]
 
             #Check if a given coordiante is safe
         def coords_safe(coords):
@@ -110,15 +110,19 @@ def move():
             x, y = coords
             neighbors = []
             
-            if coords_safe([x-1, y]): neighbors.append((x-1, y))
-            if coords_safe([x, y-1]): neighbors.append((x, y-1))
-            if coords_safe([x+1, y]): neighbors.append((x+1, y))
-            if coords_safe([x, y+1]): neighbors.append((x, y+1))
+            if coords_safe([x-1, y]):
+                neighbors.append((x-1, y))
+            if coords_safe([x, y-1]):
+                neighbors.append((x, y-1))
+            if coords_safe([x+1, y]):
+                neighbors.append((x+1, y))
+            if coords_safe([x, y+1]):
+                neighbors.append((x, y+1))
             
             return neighbors
         
         finder = astar.pathfinder(neighbors=find_neighbours)
-        path = finder( (head[0], head[1]), (food[0][0], food[0][1]) )[1]
+        path = finder((head['x'], head['y']), (food[00]['x'], food[00]['y']))[1]
         
         if len(path) < 2:
             if coords_safe(c_north):
@@ -131,11 +135,11 @@ def move():
                 direction = "left"
         else:
             next_coord = path[1]
-            if next_coord[1] < head[1]:
+            if next_coord[1] < head['y']:
                 direction = "up"
-            elif next_coord[1] > head[1]:
+            elif next_coord[1] > head['y']:
                 direction = "down"
-            elif next_coord[0] > head[0]:
+            elif next_coord[0] > head['x']:
                 direction = "right"
             else:
                 direction = "left"
