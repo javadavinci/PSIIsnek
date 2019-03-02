@@ -50,12 +50,15 @@ def start():
 @bottle.post('/move')
 def move():
     data = bottle.request.json
-    snakes = data['snakes']
+    snakes = data['board']['snakes']
     food = data['board']['food']
     height = data['board']['height']
     width = data['board']['width']
     grid = [[0 for x in range(width)] for y in range(height)]
-    snake = {data['snakes']['body']}
+    snake = []
+    for i in snakes:
+        snake.append(i['body'])
+    print(snake)
 
     """
     TODO: Using the data from the endpoint request object, your
@@ -72,8 +75,9 @@ def move():
     else:    
         for s in snakes:
             you = False
-            for idx, val in enumerate(s['coords']):
-                x, y = val
+            for idx, val in enumerate(s['body']):
+                x = val['x']
+                y = val['y']
                 if grid[x][y] != 0:
                     continue # Stops snake bodies from overwriting heads at the beginning
                 # If this is the forst coordinate, it's the head
@@ -82,7 +86,8 @@ def move():
                 else:
                     grid[x][y] = 10 if you else 20
         for coords in food:
-            x, y = coords
+            x = coords['x']
+            y = coords['y']
             grid[x][y] = 2
             
         head = snake['coords'][0]
