@@ -86,23 +86,24 @@ def move():
                     grid[x][y] = 11
                 else:
                     grid[x][y] = 21
-                    if (len(data['you']['body']) - 1) > (len(s['body']) - + 1):
-                        try:
-                            grid[x + 1][y] = 21
-                        except IndexError:
-                            pass
-                        try:
-                            grid[x][y + 1] = 21
-                        except IndexError:
-                            pass
-                        try:
-                            grid[x - 1][y] = 21
-                        except IndexError:
-                            pass
-                        try:
-                            grid[x][y - 1] = 21
-                        except IndexError:
-                            pass
+
+                    try:
+                        grid[x + 1][y] = 21
+                    except IndexError:
+                        pass
+                    try:
+                        grid[x][y + 1] = 21
+                    except IndexError:
+                        pass
+                    try:
+                        grid[x - 1][y] = 21
+                    except IndexError:
+                        pass
+                    try:
+                        grid[x][y - 1] = 21
+                    except IndexError:
+                        pass
+                    
             elif idx == (len(data['you']['body']) - 1):
                 if you is True:
                     grid[x][y] = 3
